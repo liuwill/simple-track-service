@@ -15,4 +15,15 @@ describe('Track App', function () {
         done()
       });
   });
+
+  it('track api', function (done) {
+    request
+      .get('/v1/track.gif')
+      .expect('Content-Type', /image\/gif/)
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err)
+        done()
+      });
+  });
 })

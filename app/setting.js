@@ -15,9 +15,9 @@ const loadJsonConfig = (configPath) => {
 
 const fetchConfigPath = (nodeEnv) => {
   let settingPath = '../config/setting.json'
-  if (nodeEnv === 'unit') {
-    settingPath = '../config/setting.unit.json'
-  }
+  // if (nodeEnv === 'unit') {
+  //   settingPath = '../config/setting.unit.json'
+  // }
   return settingPath
 }
 

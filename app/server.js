@@ -92,12 +92,20 @@ export default class TrackServer extends Emitter {
     }
   }
 
+  buildRequest(req) {
+    return Object.assign({ 'content-type': req.headers['content-type'] }, req)
+  }
+
   buildContext(req, res) {
     const context = {}
-    context.response = res
-    context.request = req
+    context.response = Object.assign({}, res)
+    context.request = this.buildRequest(req)
+    context.res = res
+    context.req = req
+
     context.method = req.method
     context.header = req.headers
+
     context.state = {}
 
     const requestQuery = this.parseQuery(req.url)
@@ -132,7 +140,7 @@ export default class TrackServer extends Emitter {
         return
       }
 
-      fn.then(() => this.response(context)).catch(err => {
+      fn.then(() => this.handleResponse(context)).catch(err => {
         res.statusCode = 500
         res.statusMessage = err.message
         res.end()
@@ -140,7 +148,20 @@ export default class TrackServer extends Emitter {
     }
   }
 
-  response(context) {
+  respond(context, body) {
+    const response = context.res
+
+    if(context.type) {
+      response.setHeader('Content-Type', context.type)
+    } else if (body && validator.isJSON(body)) {
+      response.setHeader('Content-Type', 'application/json')
+    } else {
+      response.setHeader('Content-Type', 'text/plain')
+    }
+    return response.end(body)
+  }
+
+  handleResponse(context) {
     let body = context.body
     const code = context.status
     const response = context.response
@@ -148,14 +169,14 @@ export default class TrackServer extends Emitter {
     if (statuses.empty[code]) {
       // strip headers
       context.body = null
-      return response.end()
+      return this.respond(context)
     }
 
     if (context.method === 'HEAD') {
       if (!response.headersSent && validator.isJSON(body)) {
         context.length = Buffer.byteLength(JSON.stringify(body))
       }
-      return response.end()
+      return this.respond(context)
     }
 
     if (body === null) {
@@ -164,11 +185,11 @@ export default class TrackServer extends Emitter {
         context.type = 'text'
         context.length = Buffer.byteLength(body)
       }
-      return response.end(body)
+      return this.respond(context, body)
     }
 
     if (Buffer.isBuffer(body) || typeof body === 'string') {
-      return response.end(body)
+      return this.respond(context, body)
     }
 
     body = JSON.stringify(body)
@@ -176,7 +197,7 @@ export default class TrackServer extends Emitter {
       context.length = Buffer.byteLength(body)
     }
 
-    response.end(body)
+    return this.respond(context, body)
   }
 
   listen(...args) {
