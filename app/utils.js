@@ -11,5 +11,11 @@ export default {
 
     if (!isRealIp) { ip = '127.0.0.1' }
     return ip
-  }
+  },
+  isJSON: (data) => {
+    if (!data || (typeof data !== 'object' && typeof data !== 'number') || Buffer.isBuffer(data)) {
+      return false
+    }
+    return true
+  },
 }

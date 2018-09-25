@@ -5,6 +5,8 @@ import url from 'url'
 import statuses from 'statuses'
 import validator from 'validator'
 
+import serverUtils from './utils'
+
 const Emitter = require('events')
 
 export default class TrackServer extends Emitter {
@@ -13,22 +15,24 @@ export default class TrackServer extends Emitter {
 
     this.routers = []
 
-    this.init()
+    // this.init()
     this.server = http.createServer(this.createHandle())
-    this.server.on('clientError', (err, socket) => {
-      this.emit('error', err, socket)
-    })
+    // this.server.on('clientError', (err, socket) => {
+    //   this.emit('error', err, socket)
+    // })
   }
 
-  init() {
-    this.on('error', (err, socket) => {
-      socket.end('HTTP/1.1 400 Bad Request\r\n\r\n')
-    })
-  }
+  // init() {
+  //   this.on('error', (err, socket) => {
+  //     socket.end('HTTP/1.1 400 Bad Request\r\n\r\n')
+  //   })
+  // }
 
+  /*
   use() {
     var args = Array.prototype.slice.call(arguments)
   }
+  */
 
   route(method, path, fn) {
     if (typeof fn !== 'function') {
@@ -151,7 +155,7 @@ export default class TrackServer extends Emitter {
   respond(context, body) {
     const response = context.res
 
-    if(context.type) {
+    if (context.type) {
       response.setHeader('Content-Type', context.type)
     } else if (body && validator.isJSON(body)) {
       response.setHeader('Content-Type', 'application/json')
@@ -173,13 +177,13 @@ export default class TrackServer extends Emitter {
     }
 
     if (context.method === 'HEAD') {
-      if (!response.headersSent && validator.isJSON(body)) {
+      if (!response.headersSent && serverUtils.isJSON(body)) {
         context.length = Buffer.byteLength(JSON.stringify(body))
       }
       return this.respond(context)
     }
 
-    if (body === null) {
+    if (body == null) {
       body = context.message || String(code)
       if (!context.headersSent) {
         context.type = 'text'
@@ -193,6 +197,7 @@ export default class TrackServer extends Emitter {
     }
 
     body = JSON.stringify(body)
+    console.log('.....', global.trace, response.headersSent, body)
     if (!response.headersSent && body) {
       context.length = Buffer.byteLength(body)
     }

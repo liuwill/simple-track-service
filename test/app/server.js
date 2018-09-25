@@ -10,4 +10,7 @@ export default {
   createRequest: () => {
     return request
   },
+  getApp: () => {
+    return app
+  },
 }

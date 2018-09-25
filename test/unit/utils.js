@@ -5,6 +5,29 @@ const { expect, assert } = chai
 
 describe('utils test', function () {
   describe('server utils', function () {
+    describe("isJson", () => {
+      it('should string not json', () => {
+        const source = 'abc'
+        const result = serverUtils.isJSON(source)
+
+        assert.isFalse(result)
+      })
+
+      it('should buffer not json', () => {
+        const source = 'abc'
+        const result = serverUtils.isJSON(Buffer.from(source))
+
+        assert.isFalse(result)
+      })
+
+      it('should object to be json', () => {
+        const source = {}
+        const result = serverUtils.isJSON(source)
+
+        assert.isTrue(result)
+      })
+    })
+
     describe("getIp", () => {
       it('should getIp from header', () => {
         const sourceIp = '10.3.123.12'
