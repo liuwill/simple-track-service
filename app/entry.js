@@ -1,12 +1,15 @@
-import Router from 'koa-router'
-
+import TrackServer from './server'
 import serverUtils from './utils'
 import trackService from './track.service'
 
-const router = new Router()
-const BLANK_GIF = Buffer.from('R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=', 'base64')
+const trackServer = new TrackServer()
 
-router.get('/monitor.gif', async (ctx) => {
+trackServer.route('GET', '/v1/test/:id', async (ctx, next) => {
+  ctx.body = ctx.params
+})
+
+trackServer.route('GET', '/v1/track.gif', async (ctx, next) => {
+  const BLANK_GIF = Buffer.from('R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=', 'base64')
   const requestParams = ctx.request.query
   const ipAddress = serverUtils.getIp(ctx.header)
   const userAgent = ctx.header['user-agent']
@@ -28,7 +31,10 @@ router.get('/monitor.gif', async (ctx) => {
   ctx.type = 'image/gif'
   ctx.body = BLANK_GIF
   ctx.status = 200
-  console.log(ctx)
 })
 
-module.exports = router
+export default {
+  createApp: () => {
+    return trackServer
+  },
+}

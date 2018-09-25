@@ -179,7 +179,7 @@ export default class TrackServer extends Emitter {
     response.end(body)
   }
 
-  listen(port) {
-    this.server.listen(port)
+  listen(...args) {
+    return this.server.listen(...args)
   }
 }
