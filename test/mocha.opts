@@ -1,0 +1,7 @@
+--silly
+--full-trace
+--timeout 10000
+--require @babel/register
+--recursive
+--exit
+test/

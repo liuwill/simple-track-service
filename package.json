@@ -1,0 +1,32 @@
+{
+  "name": "simple-track-service",
+  "version": "1.0.0",
+  "description": "track",
+  "main": "index.js",
+  "repository": "https://github.com/liuwill/simple-track-service.git",
+  "author": "liuwill",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "@babel/register": "^7.0.0",
+    "statuses": "^1.5.0",
+    "validator": "^10.8.0"
+  },
+  "scripts": {
+    "start": "node index",
+    "check": "yarn lint && yarn run test",
+    "lint": "eslint ./",
+    "test": "NODE_ENV=unit mocha --opts test/mocha.opts",
+    "coverage": "export NODE_ENV=unit && nyc mocha --opts test/mocha.opts",
+    "report": "export NODE_ENV=unit && nyc --reporter=html --reporter=text mocha --opts test/mocha.opts",
+    "report-coverage": "export NODE_ENV=unit && nyc report --reporter=text-lcov > coverage.lcov && codecov"
+  },
+  "devDependencies": {
+    "babel-eslint": "^9.0.0",
+    "chai": "^4.1.2",
+    "eslint": "^5.6.0",
+    "mocha": "^5.2.0",
+    "nyc": "^13.0.1"
+  }
+}
