@@ -13,7 +13,7 @@ export default {
     return ip
   },
   isJSON: (data) => {
-    if (!data || (typeof data !== 'object' && typeof data !== 'number') || Buffer.isBuffer(data)) {
+    if (!data || typeof data !== 'object' && typeof data !== 'number' || Buffer.isBuffer(data)) {
       return false
     }
     return true
