@@ -14,7 +14,6 @@ export default class TrackServer extends Emitter {
   constructor() {
     super()
 
-    this.routers = []
     this.router = new Router()
     this.middleware = []
 
@@ -67,6 +66,10 @@ export default class TrackServer extends Emitter {
     context.query = requestQuery.query
     context.request.query = requestQuery.query
     context.pathname = requestQuery.pathname
+
+    context.setHeader = (key, value) => {
+      context.res.setHeader(key, value)
+    }
     return context
   }
 
@@ -148,7 +151,7 @@ export default class TrackServer extends Emitter {
 }
 
 TrackServer.prototype.route = function(method, path, fn) {
-  this.router.route(method, path, fn)
+  this.router.register(method, path, fn)
 }
 
 Router.ALLOW_METHODS.forEach(item => {

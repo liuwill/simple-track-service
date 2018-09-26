@@ -41,11 +41,32 @@ describe('Track App', function () {
       });
   });
 
+  it('options', function (done) {
+    request
+      .options('/throw/500')
+      .expect(200)
+      .expect('Allow', /GET/)
+      .end(function (err, res) {
+        if (err) return done(err)
+        done()
+      });
+  });
+
   it('track api', function (done) {
     request
       .get('/v1/track.gif?uid=1')
       .expect('Content-Type', /image\/gif/)
       .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err)
+        done()
+      });
+  });
+
+  it('post track api 404', function (done) {
+    request
+      .post('/v1/track.gif')
+      .expect(404)
       .end(function (err, res) {
         if (err) return done(err)
         done()

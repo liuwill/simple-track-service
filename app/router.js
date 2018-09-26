@@ -23,8 +23,19 @@ export default class Router {
     let isExist = false
     for (let i = 0; i < this.routers.length; i++) {
       const router = this.routers[i]
-      if (!pathname.match(router.pattern) || method !== router.method) {
+      if (!pathname.match(router.pattern)) {
         continue
+      } else {
+        if (method === 'OPTIONS') {
+          context.status = 200
+          context.body = ''
+          context.setHeader('Allow', ALLOW_METHODS.join(', '))
+          fn = Promise.resolve()
+          isExist = true
+          break
+        } else if (method !== router.method) {
+          continue
+        }
       }
 
       context.params = this.parseParams(context.pathname, router.meta)
@@ -39,7 +50,7 @@ export default class Router {
     return fn
   }
 
-  route(method, path, fn) {
+  register(method, path, fn) {
     if (typeof fn !== 'function') {
       throw new TypeError('router hanlder must be a function!')
     }
@@ -83,7 +94,7 @@ Router.ALLOW_METHODS = ALLOW_METHODS
 
 ALLOW_METHODS.forEach(item => {
   let key = item.toLowerCase()
-  Router.prototype[key] = function(path, handlers) {
-    return this.route(item, path, handlers)
+  Router.prototype[key] = function (path, handlers) {
+    return this.register(item, path, handlers)
   }
 })
