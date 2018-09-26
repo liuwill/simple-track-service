@@ -1,4 +1,5 @@
 const ALLOW_METHODS = ['GET', 'POST', 'PUT', 'OPTIONS', 'DELETE', 'HEAD', 'PATCH']
+const META_REGEX = '[a-z0-9-\_]+'
 
 export default class Router {
   constructor() {
@@ -19,34 +20,25 @@ export default class Router {
   }
 
   find(context, method, pathname) {
-    let fn = Promise.resolve()
-    let isExist = false
+    let fn = null
     for (let i = 0; i < this.routers.length; i++) {
       const router = this.routers[i]
       if (!pathname.match(router.pattern)) {
         continue
-      } else {
-        if (method === 'OPTIONS') {
-          context.status = 200
-          context.body = ''
-          context.setHeader('Allow', ALLOW_METHODS.join(', '))
-          fn = Promise.resolve()
-          isExist = true
-          break
-        } else if (method !== router.method) {
-          continue
-        }
+      } else if (method === 'OPTIONS') {
+        context.status = 200
+        context.body = ''
+        context.setHeader('Allow', ALLOW_METHODS.join(', '))
+        fn = Promise.resolve()
+        break
+      } else if (method !== router.method) {
+        continue
       }
 
       context.params = this.parseParams(context.pathname, router.meta)
       fn = Promise.resolve(router.handle(context))
-      isExist = true
-      break
     }
 
-    if (!isExist) {
-      return null
-    }
     return fn
   }
 
@@ -59,34 +51,37 @@ export default class Router {
       throw new TypeError('Methed can not be resolve!')
     }
 
-    const META_REGEX = '[a-z0-9-\_]+'
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
+      let metaData = { name: item }
+
       if (item.startsWith(':')) {
         pathPieces.push(META_REGEX)
-        return {
+        Object.assign(metaData, {
           pattern: META_REGEX,
           name: item.substr('1'),
           pos: index,
-        }
+        })
+      } else {
+        pathPieces.push(item)
       }
 
-      pathPieces.push(item)
-      return {
-        name: item,
-      }
+      return metaData
     })
 
     const pattern = new RegExp(pathPieces.join('/') + '$')
+    const router = this.buildRouter(method, pattern, pathMeta, fn)
+    this.routers.push(router)
+  }
 
-    const router = {
+  buildRouter(method, pattern, meta, handle) {
+    return {
       pattern,
-      meta: pathMeta,
-      handle: fn,
+      meta,
+      handle,
       method,
     }
-    this.routers.push(router)
   }
 }
 
