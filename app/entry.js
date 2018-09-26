@@ -4,11 +4,11 @@ import trackService from './track.service'
 
 const trackServer = new TrackServer()
 
-trackServer.route('GET', '/v1/test/:id', async (ctx, next) => {
+trackServer.get('/v1/test/:id', async (ctx, next) => {
   ctx.body = ctx.params
 })
 
-trackServer.route('GET', '/v1/track.gif', async (ctx, next) => {
+trackServer.get('/v1/track.gif', async (ctx, next) => {
   const BLANK_GIF = Buffer.from('R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=', 'base64')
   const requestParams = ctx.request.query
   const ipAddress = serverUtils.getIp(ctx.header)
