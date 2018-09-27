@@ -73,7 +73,7 @@ function requestPromise(options) {
 
   const urlData = parseUrl(options.url)
   return new Promise((resolve, reject) => {
-    const request = new Request(resolve, reject)
+    const request = new Request(resolve, reject, options)
 
     const requestClient = Request.getClient()
     const req = requestClient(Object.assign({}, urlData, options), request.handle((res) => {
@@ -102,8 +102,10 @@ function requestPromise(options) {
 
 export default {
   Request,
-  post: async (options) => {
-    return requestPromise(Object.assign({}, options, {
+  post: async (link, options) => {
+    return requestPromise(Object.assign({
+      url: link,
+    }, options, {
       method: 'POST',
     }))
   },
