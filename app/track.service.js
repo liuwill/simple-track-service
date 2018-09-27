@@ -1,8 +1,16 @@
 import settingUtils from './setting'
+import httpClient from './httpClient'
 
 const requestTrack = async (trackSetting, trackData) => {
   if (!trackSetting.appId) {
     return null
+  }
+
+  try {
+    const response = await httpClient.get('/v1/test/id')
+    console.log(response, '======')
+  } catch (err) {
+    console.error(err)
   }
 
   return trackData
