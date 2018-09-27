@@ -20,6 +20,13 @@ class Request {
     this.req = req
   }
 
+  handle(callback) {
+    return (res) => {
+      this.res = res
+      callback(res)
+    }
+  }
+
   call(method) {
     const that = this
     return (...arg) => {
@@ -41,8 +48,20 @@ class Request {
 
   error(e) {
     console.error(`problem with request: ${e.message}`)
-    this.reject(e)
+    this.reject({
+      request: this.req,
+      response: this.res,
+      error: e,
+    })
   }
+}
+
+Request.client = http.request
+Request.setClient = (client) => {
+  Request.client = client
+}
+Request.getClient = () => {
+  return Request.client
 }
 
 function requestPromise(options) {
@@ -56,7 +75,8 @@ function requestPromise(options) {
   return new Promise((resolve, reject) => {
     const request = new Request(resolve, reject)
 
-    const req = http.request(Object.assign({}, urlData, options), (res) => {
+    const requestClient = Request.getClient()
+    const req = requestClient(Object.assign({}, urlData, options), request.handle((res) => {
       // console.log(`STATUS: ${res.statusCode}`)
       // console.log(`HEADERS: ${JSON.stringify(res.headers)}`)
       res.setEncoding('utf8')
@@ -64,7 +84,7 @@ function requestPromise(options) {
       let data = null
       res.on('data', request.call('receive'))
       res.on('end', request.call('end'))
-    })
+    }))
     request.installRequest(req)
     req.on('error', request.call('error'))
 
@@ -81,6 +101,7 @@ function requestPromise(options) {
 }
 
 export default {
+  Request,
   post: async (options) => {
     return requestPromise(Object.assign({}, options, {
       method: 'POST',
@@ -93,7 +114,7 @@ export default {
       method: 'GET',
     }))
   },
-  request: async(...args) => {
+  request: async (...args) => {
     return requestPromise(...args)
   }
 }

@@ -1,8 +1,8 @@
-import mockServer from './server'
+import mockApp from './mockApp'
 import querystring from 'querystring'
 
-const request = mockServer.createRequest()
-const trackServer = mockServer.getApp()
+const request = mockApp.createRequest()
+const trackServer = mockApp.getApp()
 
 trackServer.route('GET', '/throw/500', async (ctx) => {
   throw new Error()

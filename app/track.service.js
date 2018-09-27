@@ -6,13 +6,6 @@ const requestTrack = async (trackSetting, trackData) => {
     return null
   }
 
-  try {
-    const response = await httpClient.get('/v1/test/id')
-    console.log(response, '======')
-  } catch (err) {
-    console.error(err)
-  }
-
   return trackData
 }
 export default {
