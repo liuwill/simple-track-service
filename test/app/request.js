@@ -68,4 +68,18 @@ describe('httpClient mock and test', function () {
       done()
     })
   })
+
+  it('should request with headers', function (done) {
+    httpClient.request({
+      method: 'put',
+      url: '/header',
+      headers: { auth: 'mock' },
+    }).then(response => {
+      assert.isNotNull(response)
+      done()
+    }).catch(err => {
+      assert.isNull(err)
+      done()
+    })
+  })
 })

@@ -1,5 +1,3 @@
-import httpClient from '../../app/httpClient'
-
 const Emitter = require('events')
 
 class MockRequestEmitter extends Emitter {
@@ -7,6 +5,14 @@ class MockRequestEmitter extends Emitter {
     super()
 
     this.options = options
+    this.headers = null
+  }
+
+  setHeader(key, val) {
+    if (!this.headers) {
+      this.headers = {}
+    }
+    this.headers[key] = val
   }
 
   setEncoding(encoding) {
@@ -27,12 +33,18 @@ class MockRequestEmitter extends Emitter {
     } else if (options.data) {
       this.emit('data', JSON.stringify(options.data))
       this.emit('end')
+    } else if (this.headers) {
+      this.emit('data', JSON.stringify(this.headers))
+      this.emit('end')
+    } else {
+      this.emit('error', new Error())
     }
   }
 }
 
 const mockHttpRequest = (options, handle) => {
   const emitter = new MockRequestEmitter(options)
+
   handle(emitter)
   return emitter
 }

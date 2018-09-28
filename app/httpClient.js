@@ -7,9 +7,10 @@ function parseUrl(raw) {
 }
 
 class Request {
-  constructor(resolve, reject) {
+  constructor(resolve, reject, options) {
     this.resolve = resolve
     this.reject = reject
+    this.options = options
 
     this.req = null
     this.data = null
@@ -18,6 +19,18 @@ class Request {
 
   installRequest(req) {
     this.req = req
+
+    this.buildHeaders()
+  }
+
+  buildHeaders() {
+    if (!this.options.headers) {
+      return
+    }
+
+    Object.keys(this.options.headers).forEach(key => {
+      this.req.setHeader(key, this.options.headers[key])
+    })
   }
 
   handle(callback) {
@@ -106,15 +119,15 @@ export default {
     return requestPromise(Object.assign({
       url: link,
     }, options, {
-      method: 'POST',
-    }))
+        method: 'POST',
+      }))
   },
   get: async (link, options) => {
     return requestPromise(Object.assign({
       url: link,
     }, options, {
-      method: 'GET',
-    }))
+        method: 'GET',
+      }))
   },
   request: async (...args) => {
     return requestPromise(...args)

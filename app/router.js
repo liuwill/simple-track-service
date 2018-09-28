@@ -87,9 +87,9 @@ export default class Router {
 
 Router.ALLOW_METHODS = ALLOW_METHODS
 
-ALLOW_METHODS.forEach(item => {
-  let key = item.toLowerCase()
+ALLOW_METHODS.forEach(method => {
+  let key = method.toLowerCase()
   Router.prototype[key] = function (path, handlers) {
-    return this.register(item, path, handlers)
+    return this.register(method, path, handlers)
   }
 })

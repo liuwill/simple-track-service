@@ -52,6 +52,16 @@ describe('Track App', function () {
       });
   });
 
+  it('post visit', function (done) {
+    request
+      .post('/visit')
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err)
+        done()
+      });
+  });
+
   it('track api', function (done) {
     request
       .get('/v1/track.gif?uid=1')
