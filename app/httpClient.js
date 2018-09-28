@@ -11,6 +11,9 @@ class Request {
     this.resolve = resolve
     this.reject = reject
     this.options = options
+    this.headers = {}
+
+    this.body = this.buildBody(options)
 
     this.req = null
     this.data = null
@@ -19,18 +22,34 @@ class Request {
 
   installRequest(req) {
     this.req = req
-
-    this.buildHeaders()
   }
 
-  buildHeaders() {
-    if (!this.options.headers) {
-      return
-    }
-
-    Object.keys(this.options.headers).forEach(key => {
-      this.req.setHeader(key, this.options.headers[key])
+  getOptions() {
+    const urlData = parseUrl(this.options.url)
+    const headers = Object.assign({}, this.options.headers, this.headers)
+    return Object.assign({}, urlData, this.options, {
+      headers,
     })
+  }
+
+  buildBody(options) {
+    let requestData = options.data || options.body || ''
+    let requestBody = requestData
+    if (requestData && typeof requestData === 'object') {
+      requestBody = querystring.stringify(requestData)
+      this.setHeader('Content-Type', 'application/x-www-form-urlencoded')
+    }
+    this.setHeader('Content-Length', Buffer.byteLength(requestBody))
+
+    return requestBody
+  }
+
+  getBody() {
+    return this.body
+  }
+
+  setHeader(key, val) {
+    this.headers[key] = val
   }
 
   handle(callback) {
@@ -84,12 +103,11 @@ function requestPromise(options) {
     throw new Error('missing url')
   }
 
-  const urlData = parseUrl(options.url)
   return new Promise((resolve, reject) => {
     const request = new Request(resolve, reject, options)
 
     const requestClient = Request.getClient()
-    const req = requestClient(Object.assign({}, urlData, options), request.handle((res) => {
+    const req = requestClient(request.getOptions(), request.handle((res) => {
       // console.log(`STATUS: ${res.statusCode}`)
       // console.log(`HEADERS: ${JSON.stringify(res.headers)}`)
       res.setEncoding('utf8')
@@ -102,12 +120,7 @@ function requestPromise(options) {
     req.on('error', request.call('error'))
 
     // write data to request body
-    let requestData = options.data || options.body
-    let requestBody = ''
-    if (requestData && typeof requestData === 'object') {
-      requestBody = querystring.stringify(requestData)
-    }
-
+    const requestBody = request.getBody()
     req.write(requestBody)
     req.end()
   })
@@ -119,15 +132,15 @@ export default {
     return requestPromise(Object.assign({
       url: link,
     }, options, {
-        method: 'POST',
-      }))
+      method: 'POST',
+    }))
   },
   get: async (link, options) => {
     return requestPromise(Object.assign({
       url: link,
     }, options, {
-        method: 'GET',
-      }))
+      method: 'GET',
+    }))
   },
   request: async (...args) => {
     return requestPromise(...args)

@@ -8,13 +8,6 @@ class MockRequestEmitter extends Emitter {
     this.headers = null
   }
 
-  setHeader(key, val) {
-    if (!this.headers) {
-      this.headers = {}
-    }
-    this.headers[key] = val
-  }
-
   setEncoding(encoding) {
     this.encoding = encoding
   }
@@ -33,8 +26,8 @@ class MockRequestEmitter extends Emitter {
     } else if (options.data) {
       this.emit('data', JSON.stringify(options.data))
       this.emit('end')
-    } else if (this.headers) {
-      this.emit('data', JSON.stringify(this.headers))
+    } else if (options.headers) {
+      this.emit('data', JSON.stringify(options.headers))
       this.emit('end')
     } else {
       this.emit('error', new Error())

@@ -55,6 +55,7 @@ describe('Track App', function () {
   it('post visit', function (done) {
     request
       .post('/visit')
+      .send({ name: 'mock' })
       .expect(200)
       .end(function (err, res) {
         if (err) return done(err)

@@ -8,6 +8,7 @@ import validator from 'validator'
 import serverUtils from './utils'
 import Router from './router'
 
+const WITH_BODY = ['POST', 'PUT']
 const Emitter = require('events')
 
 export default class TrackServer extends Emitter {
@@ -18,7 +19,22 @@ export default class TrackServer extends Emitter {
     this.middleware = []
 
     // this.init()
-    this.server = http.createServer(this.createHandle())
+    this.server = http.createServer((req, res) => {
+      const handler = this.createHandle()
+      if (WITH_BODY.includes(req.method)) {
+        let body = ''
+        req.on('data', function (chunk) {
+          body += chunk
+        })
+
+        req.on('end', () => {
+          req.raw_body = body
+          handler(req, res)
+        })
+      } else {
+        handler(req, res)
+      }
+    })
     // this.server.on('clientError', (err, socket) => {
     //   this.emit('error', err, socket)
     // })
@@ -47,7 +63,15 @@ export default class TrackServer extends Emitter {
   }
 
   buildRequest(req) {
-    return Object.assign({ 'content-type': req.headers['content-type'] }, req)
+    let body = null
+    if (req.raw_body) {
+      body = querystring.parse(req.raw_body)
+    }
+
+    return Object.assign(req, {
+      'content-type': req.headers['content-type'],
+      body,
+    })
   }
 
   buildContext(req, res) {
@@ -84,6 +108,7 @@ export default class TrackServer extends Emitter {
         res.end()
         return
       }
+      console.log(context.method, context.pathname)
 
       fn.then(() => this.handleResponse(context)).catch(err => {
         res.statusCode = 500
@@ -150,13 +175,13 @@ export default class TrackServer extends Emitter {
   }
 }
 
-TrackServer.prototype.route = function(method, path, fn) {
+TrackServer.prototype.route = function (method, path, fn) {
   this.router.register(method, path, fn)
 }
 
 Router.ALLOW_METHODS.forEach(item => {
   let key = item.toLowerCase()
-  TrackServer.prototype[key] = function(path, handlers) {
+  TrackServer.prototype[key] = function (path, handlers) {
     return this.router[key](path, handlers)
   }
 })
