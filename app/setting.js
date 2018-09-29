@@ -32,6 +32,7 @@ export default {
       trackSetting = {
         appId: envConfig.LEAN_APP_ID,
         appKey: envConfig.LEAN_APP_KEY,
+        url: envConfig.LEAN_APP_URL,
       }
     }
     return trackSetting
