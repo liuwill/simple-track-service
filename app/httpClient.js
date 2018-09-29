@@ -1,4 +1,5 @@
 import http from 'http'
+import https from 'https'
 import querystring from 'querystring'
 import url from 'url'
 
@@ -18,16 +19,25 @@ class Request {
     this.req = null
     this.data = null
     this.res = null
+
+    this.urlData = parseUrl(options.url)
   }
 
   installRequest(req) {
     this.req = req
   }
 
+  getProtocol() {
+    let protocol = 'http'
+    if (this.urlData.protocol && this.urlData.protocol.startsWith('https')) {
+      protocol = 'https'
+    }
+    return protocol
+  }
+
   getOptions() {
-    const urlData = parseUrl(this.options.url)
     const headers = Object.assign({}, this.options.headers, this.headers)
-    return Object.assign({}, urlData, this.options, {
+    return Object.assign({}, this.urlData, this.options, {
       headers,
     })
   }
@@ -96,12 +106,15 @@ class Request {
   }
 }
 
-Request.client = http.request
-Request.setClient = (client) => {
-  Request.client = client
+Request.client = {
+  http: http.request,
+  https: https.request,
 }
-Request.getClient = () => {
-  return Request.client
+Request.setClient = (protocol, client) => {
+  Request.client[protocol] = client
+}
+Request.getClient = (protocol) => {
+  return Request.client[protocol]
 }
 
 function requestPromise(options) {
@@ -114,7 +127,7 @@ function requestPromise(options) {
   return new Promise((resolve, reject) => {
     const request = new Request(resolve, reject, options)
 
-    const requestClient = Request.getClient()
+    const requestClient = Request.getClient(request.getProtocol())
     const req = requestClient(request.getOptions(), request.handle((res) => {
       // console.log(`STATUS: ${res.statusCode}`)
       // console.log(`HEADERS: ${JSON.stringify(res.headers)}`)

@@ -4,7 +4,8 @@ import supertest from 'supertest'
 import mockRequest from './mockRequest'
 import httpClient from '../../app/httpClient'
 
-httpClient.Request.setClient(mockRequest.mockHttpRequest)
+httpClient.Request.setClient('http', mockRequest.mockHttpRequest)
+httpClient.Request.setClient('https', mockRequest.mockHttpRequest)
 
 const app = appServer.createApp()
 const server = app.listen()

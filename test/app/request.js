@@ -4,7 +4,20 @@ import httpClient from '../../app/httpClient'
 
 const { expect, assert } = chai
 
-httpClient.Request.setClient(mockRequest.mockHttpRequest)
+httpClient.Request.setClient('http', mockRequest.mockHttpRequest)
+httpClient.Request.setClient('https', mockRequest.mockHttpRequest)
+
+describe('httpClient.Request test', function () {
+  it('should parse https', function () {
+    const protocol = 'https'
+    const url = `${protocol}://localhost/test`
+    const request = new httpClient.Request(null, null, {
+      url,
+    })
+
+    expect(request.getProtocol()).to.be.equal(protocol)
+  })
+})
 
 describe('httpClient mock and test', function () {
   it('should get data', function (done) {
@@ -12,6 +25,7 @@ describe('httpClient mock and test', function () {
       assert.isNotNull(response)
       done()
     }).catch(err => {
+      console.log(err, '=======')
       assert.isNull(err)
       done()
     })
