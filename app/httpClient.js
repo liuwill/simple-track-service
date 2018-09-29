@@ -34,8 +34,16 @@ class Request {
 
   buildBody(options) {
     let requestData = options.data || options.body || ''
+    const rawHeaders = options.headers || {}
+
     let requestBody = requestData
-    if (requestData && typeof requestData === 'object') {
+    if (!requestData || typeof requestData !== 'object') {
+      return requestBody
+    }
+
+    if (rawHeaders['Content-Type'] && rawHeaders['Content-Type'].indexOf('json') >= 0) {
+      requestBody = JSON.stringify(requestData)
+    } else {
       requestBody = querystring.stringify(requestData)
       this.setHeader('Content-Type', 'application/x-www-form-urlencoded')
     }

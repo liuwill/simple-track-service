@@ -43,6 +43,9 @@ describe('httpClient mock and test', function () {
     httpClient.request({
       url: '/data',
       method: 'put',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       data: { name: 'mock' },
     }).then(response => {
       assert.isNotNull(response)
