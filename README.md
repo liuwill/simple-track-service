@@ -26,6 +26,8 @@ simple-track-service
   ├─── test                    # 单元测试代码
   |    └─── *
   ├─── Makefile                # 封装运行服务的命令
-  ├─── README.md               # 简单的部署包操作手册
-  └─── setting.json            # 配置文件，设置数据库和缓存服务器的地址
+  ├─── README.md               # 说明
+  ├─── .env                    # 通过环境变量配置的关键信息
+  ├─── start.sh                # 读取.env并启动服务器的脚本
+  └─── index.js                # 程序入口文件
 ```
