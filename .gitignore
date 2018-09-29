@@ -5,3 +5,4 @@ wiki
 .nyc_output
 coverage
 now.json
+.env
