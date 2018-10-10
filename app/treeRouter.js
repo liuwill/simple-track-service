@@ -138,7 +138,14 @@ export default class TreeRouter {
       }
     }
 
-    if (!isMatch) {
+    if (isMatch) {
+      return
+    }
+
+    let currentPattern = keyword.substr(pos)
+    if (!currentPattern) {
+      currentNode.addHandler(method, fn)
+    } else {
       let newNode = TreeNode.InitRouteNode()
       newNode.start = keyword.substr(pos, 1)
       newNode.current = keyword.substr(pos)
