@@ -10,7 +10,9 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/list', () => {})
     treeRouter.register('GET', '/long', () => {})
     treeRouter.register('GET', '/little', () => {})
-    treeRouter.register('POST', '/api', () => {})
+    treeRouter.register('POST', '/api/:name', () => {})
+    treeRouter.register('GET', '/meta/:id', () => {})
+    treeRouter.register('GET', '/meta/:id/project', () => {})
 
     console.log(JSON.stringify(treeRouter.tree))
   })

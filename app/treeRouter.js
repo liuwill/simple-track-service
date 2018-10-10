@@ -18,7 +18,7 @@ class TreeNode {
     this.path = ''
   }
 
-  addHandler(method, fn) {
+  addHandler(method, fn, pathMeta) {
     method = method && method.toUpperCase()
     if (!method || this.handlers[method]) {
       throw new Error('method has been registered')
@@ -26,6 +26,7 @@ class TreeNode {
 
     this.methods.push(method)
     this.handlers[method] = fn
+    this.meta = pathMeta
   }
 }
 
@@ -50,12 +51,13 @@ export default class TreeRouter {
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
-      let metaData = { name: item, type: NODE_TYPES.DEFAULT }
+      let metaData = { pattern: item, name: item, type: NODE_TYPES.DEFAULT }
 
       if (item.startsWith(':')) {
         pathPieces.push('*')
         Object.assign(metaData, {
           type: NODE_TYPES.PATTERN,
+          pattern: '*',
           name: item.substr('1'),
           pos: index,
         })
@@ -75,7 +77,7 @@ export default class TreeRouter {
     ]
 
     let keyword = pathMeta.reduce((result, current) => {
-      return result + current.name
+      return result + current.pattern
     }, '')
     let pos = 0 // meta的位置
     let isMatch = false
@@ -124,7 +126,7 @@ export default class TreeRouter {
             let extraNode = TreeNode.InitRouteNode()
             extraNode.start = keyword.substr(pos + inner, 1)
             extraNode.current = keyword.substr(pos + inner)
-            extraNode.addHandler(method, fn)
+            extraNode.addHandler(method, fn, pathMeta)
 
             newNode.children.push(extraNode)
           } else {
@@ -144,18 +146,20 @@ export default class TreeRouter {
 
     let currentPattern = keyword.substr(pos)
     if (!currentPattern) {
-      currentNode.addHandler(method, fn)
+      currentNode.addHandler(method, fn, pathMeta)
     } else {
       let newNode = TreeNode.InitRouteNode()
       newNode.start = keyword.substr(pos, 1)
       newNode.current = keyword.substr(pos)
-      newNode.addHandler(method, fn)
+      newNode.meta = pathMeta
+      newNode.addHandler(method, fn, pathMeta)
 
       currentNode.children.push(newNode)
     }
   }
 
-  find() {
+  find(context, method, pathname) {
+
   }
 }
 
