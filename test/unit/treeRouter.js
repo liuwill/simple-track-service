@@ -15,5 +15,7 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/meta/:id/project', () => {})
 
     console.log(JSON.stringify(treeRouter.tree))
+    console.log(treeRouter.find({}, 'GET', '/api'))
+    console.log(treeRouter.find({}, 'GET', '/meta/will'))
   })
 })

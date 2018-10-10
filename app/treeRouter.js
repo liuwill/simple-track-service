@@ -68,10 +68,10 @@ export default class TreeRouter {
       return metaData
     })
 
-    this.insertNode(pathMeta, method, path, fn)
+    this._insertNode(pathMeta, method, path, fn)
   }
 
-  insertNode(pathMeta, method, path, fn) {
+  _insertNode(pathMeta, method, path, fn) {
     let stack = [
       this.tree,
     ]
@@ -159,7 +159,87 @@ export default class TreeRouter {
   }
 
   find(context, method, pathname) {
+    let fn = null
+    method = method.toUpperCase()
 
+    let treeNode = this._searchNode(pathname)
+    if (!treeNode || !treeNode.methods.includes(method)) {
+      return fn
+    } else if (method === 'OPTIONS') {
+      context.status = 200
+      context.body = ''
+      context.setHeader('Allow', ALLOW_METHODS.join(', '))
+      fn = Promise.resolve()
+      return fn
+    }
+
+    context.params = this.parseParams(pathname, treeNode.meta)
+    fn = Promise.resolve(treeNode.handlers[method](context))
+    console.log(context)
+    return treeNode
+  }
+
+  parseParams(pathname, meta) {
+    const pathUnit = pathname.split('/')
+    const params = {}
+    for (let i = 0; i < pathUnit.length; i++) {
+      if (i < meta.length && meta[i].pattern) {
+        const name = meta[i].name
+        params[name] = pathUnit[i]
+      }
+    }
+
+    return params
+  }
+
+  _searchNode(pathname) {
+    let currentNode = this.tree
+    let mark = false
+
+    for (let i = 0; i < pathname.length;) {
+      mark = false
+      if (pathname.substr(i, 1) === '/') {
+        i++
+        continue
+      }
+
+      for (let j = 0; j < currentNode.current.length; j++) {
+        let letter = currentNode.current.substr(j, 1)
+        if (i >= pathname.length && letter !== '*') {
+          return null
+        }
+
+        if (letter === '*') {
+          return currentNode
+        } else if (letter === pathname.substr(i, 1)) {
+          i++
+        } else {
+          return null
+        }
+      }
+
+      if (i === pathname.length - 1) {
+        return currentNode
+      }
+
+      console.log(currentNode.start, currentNode.current, i, pathname.substr(i, 1))
+      for (let k = 0; k < currentNode.children.length; k++) {
+        let node = currentNode.children[k]
+        if (node.start === pathname.substr(i, 1)) {
+          currentNode = node
+          mark = true
+        } else if (node.start === '*') {
+          currentNode = node
+          mark = true
+        }
+      }
+
+      if (!mark) {
+        break
+      }
+    }
+
+    return null
   }
 }
 
