@@ -22,7 +22,6 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/meta/:id', () => {})
     treeRouter.register('GET', '/meta/:id/project', () => {})
 
-    // console.log(JSON.stringify(treeRouter.tree))
     assert.isNotNull(treeRouter.find(mockContext, 'GET', '/api'))
     // assert.isTrue(isVisit)
 
@@ -37,5 +36,16 @@ describe('tree router test', function () {
     expect(() => {
       treeRouter.register('GET', '/meta', () => {})
     }).to.throw()
+
+    treeRouter.get('/v1/test/:id', async (ctx, next) => {})
+    treeRouter.post('/visit', async (ctx, next) => {})
+    treeRouter.get('/v1/track.gif', async (ctx, next) => {})
+    // console.log(JSON.stringify(treeRouter.tree))
+
+    assert.isNull(treeRouter.find(mockContext, 'GET', '/favicon.ico'))
+    assert.isNotNull(treeRouter.find(mockContext, 'POST', '/visit'))
+
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/v1/track.gif'))
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/v1/test/ff'))
   })
 })

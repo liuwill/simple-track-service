@@ -209,12 +209,11 @@ export default class TreeRouter {
         // if (i >= pathname.length) { // && letter !== '*'
         //   return null
         // }
+        if (pathname.substr(i, 1) === '/') {
+          i++
+        }
 
         if (letter === '*') {
-          if (pathname.substr(i, 1) === '/') {
-            i++
-          }
-
           while (pathname.substr(i, 1) !== '/' && i < pathname.length) {
             i++
           }

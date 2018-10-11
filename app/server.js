@@ -6,7 +6,7 @@ import statuses from 'statuses'
 import validator from 'validator'
 
 import serverUtils from './utils'
-import Router from './router'
+import TreeRouter from './treeRouter'
 
 const WITH_BODY = ['POST', 'PUT']
 const Emitter = require('events')
@@ -15,7 +15,7 @@ export default class TrackServer extends Emitter {
   constructor() {
     super()
 
-    this.router = new Router()
+    this.router = new TreeRouter()
     this.middleware = []
 
     // this.init()
@@ -179,7 +179,7 @@ TrackServer.prototype.route = function (method, path, fn) {
   this.router.register(method, path, fn)
 }
 
-Router.ALLOW_METHODS.forEach(item => {
+TreeRouter.ALLOW_METHODS.forEach(item => {
   let key = item.toLowerCase()
   TrackServer.prototype[key] = function (path, handlers) {
     return this.router[key](path, handlers)

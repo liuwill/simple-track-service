@@ -37,6 +37,7 @@ trackServer.get('/v1/track.gif', async (ctx, next) => {
   ctx.status = 200
 })
 
+console.log(JSON.stringify(trackServer.router.tree))
 export default {
   createApp: () => {
     return trackServer
