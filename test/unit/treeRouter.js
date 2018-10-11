@@ -14,8 +14,10 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/meta/:id', () => {})
     treeRouter.register('GET', '/meta/:id/project', () => {})
 
-    console.log(JSON.stringify(treeRouter.tree))
-    console.log(treeRouter.find({}, 'GET', '/api'))
-    console.log(treeRouter.find({}, 'GET', '/meta/will'))
+    // console.log(JSON.stringify(treeRouter.tree))
+    assert.isNotNull(treeRouter.find({}, 'GET', '/api'))
+    assert.isNotNull(treeRouter.find({}, 'GET', '/meta/will'))
+    assert.isNotNull(treeRouter.find({}, 'GET', '/meta/will/project'))
+    assert.isNull(treeRouter.find({}, 'GET', '/meta3/will/project'))
   })
 })

@@ -193,6 +193,7 @@ export default class TreeRouter {
   }
 
   _searchNode(pathname) {
+    // console.log('======================')
     let currentNode = this.tree
     let mark = false
 
@@ -203,14 +204,21 @@ export default class TreeRouter {
         continue
       }
 
+      // console.log(currentNode.start, currentNode.current, i, pathname, pathname.substr(i, 1))
       for (let j = 0; j < currentNode.current.length; j++) {
         let letter = currentNode.current.substr(j, 1)
-        if (i >= pathname.length && letter !== '*') {
+        if (i >= pathname.length) { // && letter !== '*'
           return null
         }
 
         if (letter === '*') {
-          return currentNode
+          if (pathname.substr(i, 1) === '/') {
+            i++
+          }
+
+          while (pathname.substr(i, 1) !== '/' && i < pathname.length) {
+            i++
+          }
         } else if (letter === pathname.substr(i, 1)) {
           i++
         } else {
@@ -218,11 +226,15 @@ export default class TreeRouter {
         }
       }
 
-      if (i === pathname.length - 1) {
+      if (i >= pathname.length - 1) {
         return currentNode
       }
 
-      console.log(currentNode.start, currentNode.current, i, pathname.substr(i, 1))
+      if (pathname.substr(i, 1) === '/') {
+        i++
+      }
+
+      // console.log('--', i, pathname, pathname.substr(i, 1))
       for (let k = 0; k < currentNode.children.length; k++) {
         let node = currentNode.children[k]
         if (node.start === pathname.substr(i, 1)) {
@@ -234,9 +246,9 @@ export default class TreeRouter {
         }
       }
 
-      if (!mark) {
-        break
-      }
+      // if (!mark) {
+      //   break
+      // }
     }
 
     return null
