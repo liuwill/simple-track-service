@@ -35,4 +35,12 @@ export default {
 
     return params
   },
+  bindRegister(methods, classFunc) {
+    methods.forEach(method => {
+      let key = method.toLowerCase()
+      classFunc.prototype[key] = function (path, handlers) {
+        return this.register(method, path, handlers)
+      }
+    })
+  },
 }

@@ -52,6 +52,27 @@ export default class TreeRouter {
     this.tree = TreeNode.InitRouteNode()
   }
 
+  _parsePathMeta(path) {
+    return path.split('/').map((item, index) => {
+      let metaData = {
+        pattern: item,
+        name: item,
+        type: serverUtils.META_TYPES.DEFAULT
+      }
+
+      if (item.startsWith(':')) {
+        Object.assign(metaData, {
+          type: serverUtils.META_TYPES.PATTERN,
+          pattern: '*',
+          name: item.substr('1'),
+          pos: index,
+        })
+      }
+
+      return metaData
+    })
+  }
+
   register(method, path, fn) {
     if (typeof fn !== 'function') {
       throw new TypeError('router handler must be a function!')
@@ -62,28 +83,7 @@ export default class TreeRouter {
     }
 
     path = path.toLowerCase()
-    const pathPieces = []
-    const pathMeta = path.split('/').map((item, index) => {
-      let metaData = {
-        pattern: item,
-        name: item,
-        type: serverUtils.META_TYPES.DEFAULT
-      }
-
-      if (item.startsWith(':')) {
-        pathPieces.push('*')
-        Object.assign(metaData, {
-          type: serverUtils.META_TYPES.PATTERN,
-          pattern: '*',
-          name: item.substr('1'),
-          pos: index,
-        })
-      } else {
-        pathPieces.push(item)
-      }
-
-      return metaData
-    })
+    const pathMeta = this._parsePathMeta(path)
 
     this._insertNode(pathMeta, method, path, fn)
   }
@@ -235,8 +235,6 @@ export default class TreeRouter {
           }
         } else if (letter === pathname.substr(i, 1)) {
           i++
-          // } else {
-          //   return null
         }
       }
 
@@ -272,9 +270,4 @@ export default class TreeRouter {
 TreeRouter.ALLOW_METHODS = ALLOW_METHODS
 TreeRouter.NODE_TYPES = NODE_TYPES
 
-ALLOW_METHODS.forEach(method => {
-  let key = method.toLowerCase()
-  TreeRouter.prototype[key] = function (path, handlers) {
-    return this.register(method, path, handlers)
-  }
-})
+serverUtils.bindRegister(ALLOW_METHODS, TreeRouter)

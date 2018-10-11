@@ -121,13 +121,13 @@ export default class TrackServer extends Emitter {
   respond(context, body) {
     const response = context.res
 
+    let contentType = 'text/plain'
     if (context.type) {
-      response.setHeader('Content-Type', context.type)
+      contentType = context.type
     } else if (body && validator.isJSON(body)) {
-      response.setHeader('Content-Type', 'application/json')
-    } else {
-      response.setHeader('Content-Type', 'text/plain')
+      contentType = 'application/json'
     }
+    response.setHeader('Content-Type', contentType)
 
     if (context.length) {
       response.setHeader('Content-Length', context.length)

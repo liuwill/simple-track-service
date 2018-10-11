@@ -44,6 +44,15 @@ export default class Router {
     return fn
   }
 
+  _buildPatternMeta(index, item) {
+    return {
+      type: serverUtils.META_TYPES.PATTERN,
+      pattern: META_REGEX,
+      name: item.substr('1'),
+      pos: index,
+    }
+  }
+
   register(method, path, fn) {
     if (typeof fn !== 'function') {
       throw new TypeError('router hanlder must be a function!')
@@ -56,23 +65,15 @@ export default class Router {
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
-      let metaData = {
-        name: item,
-        type: serverUtils.META_TYPES.DEFAULT,
-      }
+      let metaData = { name: item, type: serverUtils.META_TYPES.DEFAULT }
 
+      let piece = item
       if (item.startsWith(':')) {
-        pathPieces.push(META_REGEX)
-        Object.assign(metaData, {
-          type: serverUtils.META_TYPES.PATTERN,
-          pattern: META_REGEX,
-          name: item.substr('1'),
-          pos: index,
-        })
-      } else {
-        pathPieces.push(item)
+        piece = META_REGEX
+        Object.assign(metaData, this._buildPatternMeta(index, item))
       }
 
+      pathPieces.push(piece)
       return metaData
     })
 
@@ -93,9 +94,4 @@ export default class Router {
 
 Router.ALLOW_METHODS = ALLOW_METHODS
 
-ALLOW_METHODS.forEach(method => {
-  let key = method.toLowerCase()
-  Router.prototype[key] = function (path, handlers) {
-    return this.register(method, path, handlers)
-  }
-})
+serverUtils.bindRegister(ALLOW_METHODS, Router)
