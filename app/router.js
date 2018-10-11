@@ -1,3 +1,5 @@
+import serverUtils from './utils'
+
 const ALLOW_METHODS = ['GET', 'POST', 'PUT', 'OPTIONS', 'DELETE', 'HEAD', 'PATCH']
 const META_REGEX = '[a-z0-9-\_]+'
 
@@ -6,18 +8,18 @@ export default class Router {
     this.routers = []
   }
 
-  parseParams(pathname, meta) {
-    const pathUnit = pathname.split('/')
-    const params = {}
-    for (let i = 0; i < pathUnit.length; i++) {
-      if (i < meta.length && meta[i].pattern) {
-        const name = meta[i].name
-        params[name] = pathUnit[i]
-      }
-    }
+  // parseParams(pathname, meta) {
+  //   const pathUnit = pathname.split('/')
+  //   const params = {}
+  //   for (let i = 0; i < pathUnit.length; i++) {
+  //     if (i < meta.length && meta[i].pattern) {
+  //       const name = meta[i].name
+  //       params[name] = pathUnit[i]
+  //     }
+  //   }
 
-    return params
-  }
+  //   return params
+  // }
 
   find(context, method, pathname) {
     let fn = null
@@ -35,7 +37,7 @@ export default class Router {
         continue
       }
 
-      context.params = this.parseParams(context.pathname, router.meta)
+      context.params = serverUtils.parseParams(context.pathname, router.meta)
       fn = Promise.resolve(router.handle(context))
     }
 

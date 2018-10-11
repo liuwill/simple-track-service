@@ -1,7 +1,8 @@
+import serverUtils from './utils'
+
 const ALLOW_METHODS = ['GET', 'POST', 'PUT', 'OPTIONS', 'DELETE', 'HEAD', 'PATCH']
 const NODE_TYPES = {
   DEFAULT: Symbol('DEFAULT'),
-  STRUCTURE: Symbol('STRUCTURE'),
   PATTERN: Symbol('PATTERN'),
 }
 
@@ -16,6 +17,14 @@ class TreeNode {
     this.methods = []
     this.meta = ''
     this.path = ''
+  }
+
+  getMethods() {
+    return this.methods
+  }
+
+  hasMethod(method) {
+    return this.methods.includes(method)
   }
 
   addHandler(method, fn, pathMeta) {
@@ -129,8 +138,7 @@ export default class TreeRouter {
             extraNode.addHandler(method, fn, pathMeta)
 
             newNode.children.push(extraNode)
-          } else {
-            newNode.type = NODE_TYPES.STRUCTURE
+
           }
           currentNode.children[index] = newNode
         }
@@ -163,33 +171,24 @@ export default class TreeRouter {
     method = method.toUpperCase()
 
     let treeNode = this._searchNode(pathname)
-    if (!treeNode || !treeNode.methods.includes(method)) {
+    if (!treeNode) {
       return fn
-    } else if (method === 'OPTIONS') {
+    }
+
+    if (method === 'OPTIONS') {
       context.status = 200
       context.body = ''
-      context.setHeader('Allow', ALLOW_METHODS.join(', '))
+      context.setHeader('Allow', treeNode.getMethods().join(', '))
       fn = Promise.resolve()
+      return fn
+    } else if (!treeNode.hasMethod(method)) {
       return fn
     }
 
-    context.params = this.parseParams(pathname, treeNode.meta)
+    context.params = serverUtils.parseParams(pathname, treeNode.meta)
     fn = Promise.resolve(treeNode.handlers[method](context))
-    console.log(context)
-    return treeNode
-  }
-
-  parseParams(pathname, meta) {
-    const pathUnit = pathname.split('/')
-    const params = {}
-    for (let i = 0; i < pathUnit.length; i++) {
-      if (i < meta.length && meta[i].pattern) {
-        const name = meta[i].name
-        params[name] = pathUnit[i]
-      }
-    }
-
-    return params
+    // console.log(context)
+    return fn
   }
 
   _searchNode(pathname) {
@@ -207,9 +206,9 @@ export default class TreeRouter {
       // console.log(currentNode.start, currentNode.current, i, pathname, pathname.substr(i, 1))
       for (let j = 0; j < currentNode.current.length; j++) {
         let letter = currentNode.current.substr(j, 1)
-        if (i >= pathname.length) { // && letter !== '*'
-          return null
-        }
+        // if (i >= pathname.length) { // && letter !== '*'
+        //   return null
+        // }
 
         if (letter === '*') {
           if (pathname.substr(i, 1) === '/') {
@@ -221,8 +220,8 @@ export default class TreeRouter {
           }
         } else if (letter === pathname.substr(i, 1)) {
           i++
-        } else {
-          return null
+        // } else {
+        //   return null
         }
       }
 
@@ -246,9 +245,9 @@ export default class TreeRouter {
         }
       }
 
-      // if (!mark) {
-      //   break
-      // }
+      if (!mark) {
+        break
+      }
     }
 
     return null
@@ -257,3 +256,10 @@ export default class TreeRouter {
 
 TreeRouter.ALLOW_METHODS = ALLOW_METHODS
 TreeRouter.NODE_TYPES = NODE_TYPES
+
+ALLOW_METHODS.forEach(method => {
+  let key = method.toLowerCase()
+  TreeRouter.prototype[key] = function (path, handlers) {
+    return this.register(method, path, handlers)
+  }
+})

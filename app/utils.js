@@ -18,4 +18,16 @@ export default {
     }
     return true
   },
+  parseParams(pathname, meta) {
+    const pathUnit = pathname.split('/')
+    const params = {}
+    for (let i = 0; i < pathUnit.length; i++) {
+      if (i < meta.length && meta[i].pattern) {
+        const name = meta[i].name
+        params[name] = pathUnit[i]
+      }
+    }
+
+    return params
+  },
 }
