@@ -1,3 +1,5 @@
+import serverUtils from './utils'
+
 const ALLOW_METHODS = ['GET', 'POST', 'PUT', 'OPTIONS', 'DELETE', 'HEAD', 'PATCH']
 const META_REGEX = '[a-z0-9-\_]+'
 
@@ -6,18 +8,18 @@ export default class Router {
     this.routers = []
   }
 
-  parseParams(pathname, meta) {
-    const pathUnit = pathname.split('/')
-    const params = {}
-    for (let i = 0; i < pathUnit.length; i++) {
-      if (i < meta.length && meta[i].pattern) {
-        const name = meta[i].name
-        params[name] = pathUnit[i]
-      }
-    }
+  // parseParams(pathname, meta) {
+  //   const pathUnit = pathname.split('/')
+  //   const params = {}
+  //   for (let i = 0; i < pathUnit.length; i++) {
+  //     if (i < meta.length && meta[i].pattern) {
+  //       const name = meta[i].name
+  //       params[name] = pathUnit[i]
+  //     }
+  //   }
 
-    return params
-  }
+  //   return params
+  // }
 
   find(context, method, pathname) {
     let fn = null
@@ -35,7 +37,7 @@ export default class Router {
         continue
       }
 
-      context.params = this.parseParams(context.pathname, router.meta)
+      context.params = serverUtils.parseParams(context.pathname, router.meta)
       fn = Promise.resolve(router.handle(context))
     }
 
@@ -54,11 +56,15 @@ export default class Router {
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
-      let metaData = { name: item }
+      let metaData = {
+        name: item,
+        type: serverUtils.META_TYPES.DEFAULT,
+      }
 
       if (item.startsWith(':')) {
         pathPieces.push(META_REGEX)
         Object.assign(metaData, {
+          type: serverUtils.META_TYPES.PATTERN,
           pattern: META_REGEX,
           name: item.substr('1'),
           pos: index,

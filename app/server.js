@@ -6,7 +6,7 @@ import statuses from 'statuses'
 import validator from 'validator'
 
 import serverUtils from './utils'
-import Router from './router'
+import TreeRouter from './treeRouter'
 
 const WITH_BODY = ['POST', 'PUT']
 const Emitter = require('events')
@@ -15,7 +15,7 @@ export default class TrackServer extends Emitter {
   constructor() {
     super()
 
-    this.router = new Router()
+    this.router = new TreeRouter()
     this.middleware = []
 
     // this.init()
@@ -128,6 +128,14 @@ export default class TrackServer extends Emitter {
     } else {
       response.setHeader('Content-Type', 'text/plain')
     }
+
+    if (context.length) {
+      response.setHeader('Content-Length', context.length)
+    }
+
+    if (context.method === 'HEAD') {
+      return response.end()
+    }
     return response.end(body)
   }
 
@@ -145,6 +153,8 @@ export default class TrackServer extends Emitter {
     if (context.method === 'HEAD') {
       if (!response.headersSent && serverUtils.isJSON(body)) {
         context.length = Buffer.byteLength(JSON.stringify(body))
+      } else if (body) {
+        context.length = Buffer.byteLength(body)
       }
       return this.respond(context)
     }
@@ -179,7 +189,7 @@ TrackServer.prototype.route = function (method, path, fn) {
   this.router.register(method, path, fn)
 }
 
-Router.ALLOW_METHODS.forEach(item => {
+TreeRouter.ALLOW_METHODS.forEach(item => {
   let key = item.toLowerCase()
   TrackServer.prototype[key] = function (path, handlers) {
     return this.router[key](path, handlers)

@@ -74,6 +74,17 @@ describe('Track App', function () {
       });
   });
 
+  it('track api HEAD', function (done) {
+    request
+      .head('/v1/track.gif?uid=1')
+      .expect('Content-Type', /image\/gif/)
+      .expect(200)
+      .end(function (err, res) {
+        if (err) return done(err)
+        done()
+      });
+  });
+
   it('post track api 404', function (done) {
     request
       .post('/v1/track.gif')
