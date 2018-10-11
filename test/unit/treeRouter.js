@@ -23,12 +23,21 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/meta/:id', () => {})
     treeRouter.register('GET', '/meta/:id/project', () => {})
 
+    treeRouter.register('GET', '/logger', () => {})
+    treeRouter.register('GET', '/log', () => {})
+    treeRouter.register('GET', '/logged', () => {})
+
+    console.log(JSON.stringify(treeRouter.tree))
     assert.isNotNull(treeRouter.find(mockContext, 'GET', '/api'))
     // assert.isTrue(isVisit)
 
-    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/meta/will'))
-    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/meta/will/project'))
-    assert.isNotNull(treeRouter.find(mockContext, 'OPTIONS', '/meta/will'))
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/meta/will'), `'GET', '/meta/will'`)
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/meta/will/project'), `'GET', '/meta/will/project'`)
+    assert.isNotNull(treeRouter.find(mockContext, 'OPTIONS', '/meta/will'), ``)
+
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/logger'), `GET /logger`)
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/logged'), `GET /logged`)
+    assert.isNotNull(treeRouter.find(mockContext, 'GET', '/log'), `GET /log`)
 
     assert.isNull(treeRouter.find(mockContext, 'POST', '/meta/will'))
     assert.isNull(treeRouter.find(mockContext, 'POST', '/liter'))

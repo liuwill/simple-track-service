@@ -8,6 +8,7 @@ const NODE_TYPES = {
 
 class TreeNode {
   constructor() {
+    this.id = TreeNode.Count
     this.start = ''
     this.current = ''
     this.children = []
@@ -27,7 +28,7 @@ class TreeNode {
     return this.methods.includes(method)
   }
 
-  addHandler(method, fn, pathMeta) {
+  addHandler(method, fn, pathMeta, path) {
     method = method && method.toUpperCase()
     if (!method || this.handlers[method]) {
       throw new Error('method has been registered')
@@ -36,10 +37,13 @@ class TreeNode {
     this.methods.push(method)
     this.handlers[method] = fn
     this.meta = pathMeta
+    this.path = path
   }
 }
 
+TreeNode.Count = 0
 TreeNode.InitRouteNode = function () {
+  TreeNode.Count++
   return new TreeNode()
 }
 
@@ -143,7 +147,7 @@ export default class TreeRouter {
           let extraNode = TreeNode.InitRouteNode()
           extraNode.start = keyword.substr(pos + inner, 1)
           extraNode.current = keyword.substr(pos + inner)
-          extraNode.addHandler(method, fn, pathMeta)
+          extraNode.addHandler(method, fn, pathMeta, path)
 
           newNode.children.push(extraNode)
         }
@@ -161,13 +165,13 @@ export default class TreeRouter {
 
     let currentPattern = keyword.substr(pos)
     if (!currentPattern) {
-      currentNode.addHandler(method, fn, pathMeta)
+      currentNode.addHandler(method, fn, pathMeta, path)
     } else {
       let newNode = TreeNode.InitRouteNode()
       newNode.start = keyword.substr(pos, 1)
       newNode.current = keyword.substr(pos)
       newNode.meta = pathMeta
-      newNode.addHandler(method, fn, pathMeta)
+      newNode.addHandler(method, fn, pathMeta, path)
 
       currentNode.children.push(newNode)
     }
@@ -212,7 +216,7 @@ export default class TreeRouter {
         continue
       }
 
-      // console.log(currentNode.start, currentNode.current, i, pathname, pathname.substr(i, 1))
+      // console.log(currentNode.start, currentNode.current, i, pathname, pathname.substr(i, 1), '+>>', currentNode.path, currentNode.id)
       for (let j = 0; j < currentNode.current.length; j++) {
         let letter = currentNode.current.substr(j, 1)
         // if (i >= pathname.length) { // && letter !== '*'
@@ -233,7 +237,7 @@ export default class TreeRouter {
         }
       }
 
-      if (i >= pathname.length - 1) {
+      if (i >= pathname.length) {
         return currentNode
       }
 
@@ -241,7 +245,7 @@ export default class TreeRouter {
         i++
       }
 
-      // console.log('--', i, pathname, pathname.substr(i, 1))
+      // console.log('--', i, pathname, pathname.substr(i, 1), '+>', currentNode.path)
       for (let k = 0; k < currentNode.children.length; k++) {
         let node = currentNode.children[k]
         if (node.start === pathname.substr(i, 1)) {
