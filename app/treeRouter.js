@@ -185,6 +185,8 @@ export default class TreeRouter {
       context.setHeader('Allow', treeNode.getMethods().join(', '))
       fn = Promise.resolve()
       return fn
+    } else if (method === 'HEAD' && treeNode.hasMethod('GET')) {
+      method = 'GET'
     } else if (!treeNode.hasMethod(method)) {
       return fn
     }

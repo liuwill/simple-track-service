@@ -128,6 +128,10 @@ export default class TrackServer extends Emitter {
     } else {
       response.setHeader('Content-Type', 'text/plain')
     }
+
+    if (context.length) {
+      response.setHeader('Content-Length', context.length)
+    }
     return response.end(body)
   }
 
