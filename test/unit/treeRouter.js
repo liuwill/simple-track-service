@@ -27,7 +27,6 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/log', () => {})
     treeRouter.register('GET', '/logged', () => {})
 
-    console.log(JSON.stringify(treeRouter.tree))
     assert.isNotNull(treeRouter.find(mockContext, 'GET', '/api'))
     // assert.isTrue(isVisit)
 
@@ -51,6 +50,7 @@ describe('tree router test', function () {
     treeRouter.post('/visit', async (ctx, next) => {})
     treeRouter.get('/v1/track.gif', async (ctx, next) => {})
 
+    // console.log(JSON.stringify(treeRouter.tree))
     assert.isNull(treeRouter.find(mockContext, 'GET', '/favicon.ico'))
     assert.isNotNull(treeRouter.find(mockContext, 'POST', '/visit'))
 

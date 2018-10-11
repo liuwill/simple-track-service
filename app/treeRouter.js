@@ -108,6 +108,7 @@ export default class TreeRouter {
 
       for (let index = 0; index < currentNode.children.length; index++) {
         let node = currentNode.children[index]
+        // console.log(currentNode.id, node.id, node.start, keyword, pos)
         if (node.start !== keyword.substr(pos, 1)) {
           continue
         }
@@ -125,6 +126,7 @@ export default class TreeRouter {
           inner++
         }
 
+        // console.log(currentPattern, '++', inner, fullMatch, pos, pos + inner, ll, node.id)
         if (inner > 0 && fullMatch) {
           currentNode = node
           pos += inner
@@ -133,7 +135,6 @@ export default class TreeRouter {
           break
         }
 
-        // console.log('++', inner, fullMatch, pos, pos + inner, ll)
         // if (inner > 0) {
         node.start = currentPattern.substr(inner, 1)
         node.current = currentPattern.substr(inner)
@@ -143,13 +144,15 @@ export default class TreeRouter {
         newNode.current = keyword.substr(pos, inner)
         newNode.children.push(node)
 
-        if (pos + inner < ll - 1) {
+        if (pos + inner < ll) {
           let extraNode = TreeNode.InitRouteNode()
           extraNode.start = keyword.substr(pos + inner, 1)
           extraNode.current = keyword.substr(pos + inner)
           extraNode.addHandler(method, fn, pathMeta, path)
 
           newNode.children.push(extraNode)
+        } else {
+          newNode.addHandler(method, fn, pathMeta, path)
         }
         currentNode.children[index] = newNode
         // }
