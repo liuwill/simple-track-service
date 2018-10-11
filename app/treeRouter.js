@@ -85,6 +85,7 @@ export default class TreeRouter {
   }
 
   _insertNode(pathMeta, method, path, fn) {
+    // console.log('============', path)
     let stack = [
       this.tree,
     ]
@@ -126,26 +127,28 @@ export default class TreeRouter {
 
           stack.push(node)
           break
-        } else if (inner > 0) {
-          node.start = currentPattern.substr(inner, 1)
-          node.current = currentPattern.substr(inner)
-
-          let newNode = TreeNode.InitRouteNode()
-          newNode.start = keyword.substr(pos, 1)
-          newNode.current = keyword.substr(pos, inner)
-          newNode.children.push(node)
-
-          if (pos + inner < ll - 1) {
-            let extraNode = TreeNode.InitRouteNode()
-            extraNode.start = keyword.substr(pos + inner, 1)
-            extraNode.current = keyword.substr(pos + inner)
-            extraNode.addHandler(method, fn, pathMeta)
-
-            newNode.children.push(extraNode)
-
-          }
-          currentNode.children[index] = newNode
         }
+
+        // console.log('++', inner, fullMatch, pos, pos + inner, ll)
+        // if (inner > 0) {
+        node.start = currentPattern.substr(inner, 1)
+        node.current = currentPattern.substr(inner)
+
+        let newNode = TreeNode.InitRouteNode()
+        newNode.start = keyword.substr(pos, 1)
+        newNode.current = keyword.substr(pos, inner)
+        newNode.children.push(node)
+
+        if (pos + inner < ll - 1) {
+          let extraNode = TreeNode.InitRouteNode()
+          extraNode.start = keyword.substr(pos + inner, 1)
+          extraNode.current = keyword.substr(pos + inner)
+          extraNode.addHandler(method, fn, pathMeta)
+
+          newNode.children.push(extraNode)
+        }
+        currentNode.children[index] = newNode
+        // }
 
         isMatch = true
         break

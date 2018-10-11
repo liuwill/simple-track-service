@@ -17,6 +17,7 @@ describe('tree router test', function () {
     treeRouter.register('GET', '/list', () => {})
     treeRouter.register('GET', '/long', () => {})
     treeRouter.register('GET', '/little', () => {})
+    treeRouter.register('GET', '/list/user', () => {})
     treeRouter.register('POST', '/api/:name', () => {})
     treeRouter.register('GET', '/meta', () => {})
     treeRouter.register('GET', '/meta/:id', () => {})
@@ -40,7 +41,6 @@ describe('tree router test', function () {
     treeRouter.get('/v1/test/:id', async (ctx, next) => {})
     treeRouter.post('/visit', async (ctx, next) => {})
     treeRouter.get('/v1/track.gif', async (ctx, next) => {})
-    // console.log(JSON.stringify(treeRouter.tree))
 
     assert.isNull(treeRouter.find(mockContext, 'GET', '/favicon.ico'))
     assert.isNotNull(treeRouter.find(mockContext, 'POST', '/visit'))

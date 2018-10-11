@@ -132,6 +132,10 @@ export default class TrackServer extends Emitter {
     if (context.length) {
       response.setHeader('Content-Length', context.length)
     }
+
+    if (context.method === 'HEAD') {
+      return response.end()
+    }
     return response.end(body)
   }
 
@@ -149,6 +153,8 @@ export default class TrackServer extends Emitter {
     if (context.method === 'HEAD') {
       if (!response.headersSent && serverUtils.isJSON(body)) {
         context.length = Buffer.byteLength(JSON.stringify(body))
+      } else if (body) {
+        context.length = Buffer.byteLength(body)
       }
       return this.respond(context)
     }
