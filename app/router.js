@@ -56,11 +56,15 @@ export default class Router {
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
-      let metaData = { name: item }
+      let metaData = {
+        name: item,
+        type: serverUtils.META_TYPES.DEFAULT,
+      }
 
       if (item.startsWith(':')) {
         pathPieces.push(META_REGEX)
         Object.assign(metaData, {
+          type: serverUtils.META_TYPES.PATTERN,
           pattern: META_REGEX,
           name: item.substr('1'),
           pos: index,

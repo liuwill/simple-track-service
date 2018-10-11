@@ -1,3 +1,7 @@
+const META_TYPES = {
+  DEFAULT: Symbol('DEFAULT'),
+  PATTERN: Symbol('PATTERN'),
+}
 
 export default {
   getIp: (header) => {
@@ -18,11 +22,12 @@ export default {
     }
     return true
   },
+  META_TYPES,
   parseParams(pathname, meta) {
     const pathUnit = pathname.split('/')
     const params = {}
     for (let i = 0; i < pathUnit.length; i++) {
-      if (i < meta.length && meta[i].pattern) {
+      if (i < meta.length && meta[i].pattern && meta[i].type === META_TYPES.PATTERN) {
         const name = meta[i].name
         params[name] = pathUnit[i]
       }

@@ -60,12 +60,16 @@ export default class TreeRouter {
     path = path.toLowerCase()
     const pathPieces = []
     const pathMeta = path.split('/').map((item, index) => {
-      let metaData = { pattern: item, name: item, type: NODE_TYPES.DEFAULT }
+      let metaData = {
+        pattern: item,
+        name: item,
+        type: serverUtils.META_TYPES.DEFAULT
+      }
 
       if (item.startsWith(':')) {
         pathPieces.push('*')
         Object.assign(metaData, {
-          type: NODE_TYPES.PATTERN,
+          type: serverUtils.META_TYPES.PATTERN,
           pattern: '*',
           name: item.substr('1'),
           pos: index,
@@ -219,8 +223,8 @@ export default class TreeRouter {
           }
         } else if (letter === pathname.substr(i, 1)) {
           i++
-        // } else {
-        //   return null
+          // } else {
+          //   return null
         }
       }
 
